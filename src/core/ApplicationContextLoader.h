@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <memory>
 #include "NodeContainer.h"
+#include "PluginLoader.h"
 
 class ApplicationContextLoader : public QObject
 {
@@ -15,19 +16,27 @@ public:
     void loadApplicationContext(const QString &config_path);
     void loadTestContext();
 
-    void setNodeContainer(NodeContainer *node_container);
+    void setPluginLoader(PluginLoader *plugin_loader);
+
+    void setSensorContainer(NodeContainer<SensorNode, SensorNodeFactory> *sensor_container);
+    void setBrokerContainer(NodeContainer<BrokerNode, BrokerNodeFactory> *broker_container);
+    void setConnectivityContainer(NodeContainer<ConnectivityNode, ConnectivityNodeFactory> *connectivity_container);
 
 signals:
 
 public slots:
 
 private:
-    NodeContainer *node_container_;
+    NodeContainer<SensorNode, SensorNodeFactory> *sensor_container_;
+    NodeContainer<BrokerNode, BrokerNodeFactory> *broker_container_;
+    NodeContainer<ConnectivityNode, ConnectivityNodeFactory> *connectivity_container_;
+
+    PluginLoader *plugin_loader_;
     QSettings *node_settings_;
     QSettings *pipe_settings_;
 
-//    std::unique_ptr<QSettings> settings_;
     void assertNodeContainerExists();
+    void loadPlugin();
 
     const static QString TAG;
 

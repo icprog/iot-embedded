@@ -16,9 +16,12 @@ const QString ApplicationContextLoader::NODE_CLASSNAME_KEY = "classname";
 const QString ApplicationContextLoader::NODE_CONNECTIONS_KEY = "outboundTo";
 const QString ApplicationContextLoader::NODE_TYPE_KEY = "type";
 
-ApplicationContextLoader::ApplicationContextLoader(QObject *parent) : QObject(parent)
+ApplicationContextLoader::ApplicationContextLoader(QObject *parent) : QObject(parent),
+                                                                      sensor_container_(nullptr),
+                                                                      broker_container_(nullptr),
+                                                                      connectivity_container_(nullptr)
 {
-    this->node_container_ = nullptr;
+
 
 }
 
@@ -61,21 +64,21 @@ void ApplicationContextLoader::loadApplicationContext(const QString &config_path
         QObject *ptr;
         if(type.toLower()=="sensor") {
             try {
-                ptr = node_container_->getSensor(node_name);
+                ptr = sensor_container_->getNode(node_name);
             } catch (std::runtime_error e) {
                 QString msg = "Cannot create connection: node " + node_name + "not found";
                 throw new std::runtime_error(msg.toStdString());
             }
         } else if(type.toLower() == "broker") {
             try {
-                ptr = node_container_->getBroker(node_name);
+                ptr = broker_container_->getNode(node_name);
             } catch (std::runtime_error e) {
                 QString msg = "Cannot create connection: node " + node_name + "not found";
                 throw new std::runtime_error(msg.toStdString());
             }
         } else if(type.toLower() == "connectivity") {
             try {
-                ptr = node_container_->getConnectivityNode(node_name);
+                ptr = connectivity_container_->getNode(node_name);
             } catch (std::runtime_error e) {
                 QString msg = "Cannot create connection: node " + node_name + "not found";
                 throw new std::runtime_error(msg.toStdString());
@@ -134,7 +137,7 @@ void ApplicationContextLoader::loadApplicationContext(const QString &config_path
         connections_by_name.insert(name, node_settings_->value(NODE_CONNECTIONS_KEY).toStringList());
         node_settings_->endGroup();
 
-        node_container_->loadNodeFactory(lib_filename);
+//        node_container_->loadNodeFactory(lib_filename);
 
         ///Copy settings to global scope (they will be necessarry during node creation)
         copySettingsToGlobal(name);
@@ -142,14 +145,20 @@ void ApplicationContextLoader::loadApplicationContext(const QString &config_path
         try{
         /// Instantiate node
             if(type.toLower()=="sensor") {
-                SensorNode* node = node_container_->getSensorFactory(classname)->createNode(name);
-                node_container_->registerNode(node);
+                SensorNodeFactory * nf = plugin_loader_->loadPlugin<SensorNodeFactory>(lib_filename);
+                sensor_container_->registerFactory(nf->getNodeClassName(), nf);
+                SensorNode* node = nf->createNode(name);
+                sensor_container_->addNode(node->getName(), node);
             } else if(type.toLower() == "broker") {
-                BrokerNode* node = node_container_->getBrokerFactory(classname)->createNode(name);
-                node_container_->registerNode(node);
+                BrokerNodeFactory * nf = plugin_loader_->loadPlugin<BrokerNodeFactory>(lib_filename);
+                broker_container_->registerFactory(nf->getNodeClassName(), nf);
+                BrokerNode* node = nf->createNode(name);
+                broker_container_->addNode(node->getName(), node);
             } else if(type.toLower() == "connectivity") {
-                ConnectivityNode* node = node_container_->getConnectivityFactory(classname)->createNode(name);
-                node_container_->registerNode(node);
+                ConnectivityNodeFactory * nf = plugin_loader_->loadPlugin<ConnectivityNodeFactory>(lib_filename);
+                connectivity_container_->registerFactory(nf->getNodeClassName(), nf);
+                 ConnectivityNode* node = nf->createNode(name);
+                connectivity_container_->addNode(node->getName(), node);
             } else continue;
         } catch (std::runtime_error e) {
             qDebug()<<TAG<<": loadApplicationContext()- Error when creating node: "<<name<<" of class: "<<classname<<". Rolling back settings change.";
@@ -157,8 +166,6 @@ void ApplicationContextLoader::loadApplicationContext(const QString &config_path
             global_settings.remove("");
             global_settings.endGroup();
         }
-
-
     }
 
     /// Load and create connections
@@ -203,13 +210,35 @@ void ApplicationContextLoader::loadTestContext()
 
 }
 
-void ApplicationContextLoader::setNodeContainer(NodeContainer *node_container)
+//void ApplicationContextLoader::setNodeContainer(NodeContainer *node_container)
+//{
+//    node_container_ = node_container;
+//}
+
+void ApplicationContextLoader::setPluginLoader(PluginLoader *plugin_loader)
 {
-    node_container_ = node_container;
+    plugin_loader_ = plugin_loader;
+}
+
+void ApplicationContextLoader::setSensorContainer(NodeContainer<SensorNode, SensorNodeFactory> *sensor_container)
+{
+    sensor_container_ = sensor_container;
+}
+
+void ApplicationContextLoader::setBrokerContainer(NodeContainer<BrokerNode, BrokerNodeFactory> *broker_container)
+{
+    broker_container_ = broker_container;
+}
+
+void ApplicationContextLoader::setConnectivityContainer(NodeContainer<ConnectivityNode, ConnectivityNodeFactory> *connectivity_container)
+{
+    connectivity_container_ = connectivity_container;
 }
 
 void ApplicationContextLoader::assertNodeContainerExists()
 {
-    if(this->node_container_ == nullptr)
+    if( this->sensor_container_ == nullptr ||
+        this->broker_container_ == nullptr ||
+        this->connectivity_container_ == nullptr)
         throw new std::runtime_error("No NodeContainer specified.");
 }

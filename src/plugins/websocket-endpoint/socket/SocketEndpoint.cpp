@@ -25,7 +25,7 @@ void SocketEndpoint::start()
     try {
         socket_->connect();
     } catch (std::runtime_error e) {
-        qDebug()<<TAG<<": start() - unable to open socket with given url: "<<url<<" and portnumber: "<<port_number<<".";
+        qDebug()<<TAG<<": start() - unable to open socket with given url: "<<url<<" and portnumber: "<<port_number<<". Reason: "<<e.what();
     }
 
     stop();

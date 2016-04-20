@@ -8,7 +8,7 @@ class Socket : public QObject
 {
     Q_OBJECT
 public:
-    explicit Socket(QObject *parent = 0);
+    explicit Socket(QObject *parent = 0) : QObject(parent) {}
     virtual ~Socket() {}
     virtual void connect() = 0;
     virtual void disconnect() = 0;

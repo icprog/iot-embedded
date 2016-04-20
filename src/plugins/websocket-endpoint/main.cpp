@@ -14,6 +14,4 @@ int main(int argc, char *argv[])
     ws->start();
 
     return a.exec();
-
-//    return 0;
 }

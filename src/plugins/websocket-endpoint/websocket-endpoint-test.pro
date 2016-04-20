@@ -15,13 +15,15 @@ DEFINES += WEBSOCKETENDPOINT_LIBRARY
 
 SOURCES += main.cpp \
     socket/SocketEndpoint.cpp \
-    WebsocketEndpointFactory.cpp
+    WebsocketEndpointFactory.cpp \
+    QWebSocketWrapper.cpp
 
 
 HEADERS += \
     socket/Socket.h \
     socket/SocketEndpoint.h \
-    WebsocketEndpointFactory.h
+    WebsocketEndpointFactory.h \
+    QWebSocketWrapper.h
 
 unix {
     target.path = /usr/lib

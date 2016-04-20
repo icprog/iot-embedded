@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QThread>
 #include "socket/SocketEndpoint.h"
+#include "QWebSocketWrapper.h"
 
 const QString WebsocketEndpointFactory::TAG = "WebsocketEndpointFactory";
 
@@ -16,7 +17,7 @@ ConnectivityNode *WebsocketEndpointFactory::createNode(const QString &node_name)
     QThread *node_thread = new QThread(this);
     node_thread->start();
     SocketEndpoint *se = new SocketEndpoint(node_name);
-//    se->setSocket(new Socket());
+    se->setSocket(new QWebSocketWrapper(se));
     ConnectivityNode *node = se;
     se->moveToThread(node_thread);
     qDebug()<<TAG<<": Node created and moved to dedicated thread." ;

@@ -14,6 +14,7 @@ TEMPLATE = app
 SOURCES += main.cpp \
     NodeContainer.cpp \
     ApplicationContextLoader.cpp \
+    PluginLoader.cpp
 
     #plugin/iot-broker/QStomp/qstomp.cpp
 
@@ -23,11 +24,13 @@ HEADERS += \
 #    interfaces/SensorNodeFactory.h \
 #    interfaces/BrokerNodeFactory.h \
 #    interfaces/ConnectivityNodeFactory.h \
+    PluginLoader.h
 
 
 QMAKE_CXXFLAGS_WARN_OFF += -Wunused-parameter
 
-unix:!macx: LIBS += -L$$PWD/../../build/sdk/ -liot-embedded-sdk
+unix:!macx: LIBS += -L$$PWD/../../build/sdk/ -liot-embedded-sdk \
+
 
 INCLUDEPATH += $$PWD/../sdk \
                $$PWD/../sdk/interfaces

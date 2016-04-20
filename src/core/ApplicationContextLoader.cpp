@@ -189,10 +189,6 @@ void ApplicationContextLoader::loadApplicationContext(const QString &config_path
             qDebug()<<TAG<<": connection made between "+name+" and "+connection;
         }
     }
-
-
-
-
 }
 
 void ApplicationContextLoader::loadTestContext()
@@ -200,20 +196,7 @@ void ApplicationContextLoader::loadTestContext()
     assertNodeContainerExists();
     QString sts_factory_name = "SystemTelemetrySensor";
     QString sensor_name = "SysTelemetrySensor1";
-//    node_container_->loadNodeFactoryTestSet();
-//    Node *sts1 = node_container_->getNodeFactory(sts_factory_name)->createNode(sensor_name);
-//    node_container_->registerNode(sts1);
-//    Pipeline *pipe = new OneToManyPipeline(this);
-//    pipe->setInboundChannel(node_container_->getNode(sensor_name));
-
-//    sts1->start();
-
 }
-
-//void ApplicationContextLoader::setNodeContainer(NodeContainer *node_container)
-//{
-//    node_container_ = node_container;
-//}
 
 void ApplicationContextLoader::setPluginLoader(PluginLoader *plugin_loader)
 {

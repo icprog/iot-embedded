@@ -16,9 +16,12 @@ public:
         QObject* plugin = loader.instance();
         if(plugin) {
            qDebug()<<"PluginLoader: loadPlugin() - plugin loaded from path: "<<path;
-           return qobject_cast<T*>(plugin);
+           T* ret = qobject_cast<T*>(plugin);
+           if(ret)
+                return ret;
+           else throw std::runtime_error("Invalid plugin cast.");
         }
-        else throw new std::runtime_error("Unable to load plugin");
+        else throw std::runtime_error("Unable to load plugin");
     }
 };
 

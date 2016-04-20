@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     ApplicationContextLoader context(&a);
     PluginLoader* loader = new PluginLoader(&context);
 
-//    SensorNodeFactory* test = loader->loadPlugin<SensorNodeFactory>("/home/jakub/workspace/cpp/Qt/iot-embedded/build/plugins/system-telemetry-sensor/libsystem_telemetry_sensor.so");
+//    SensorNodeFactory* test = loader->loadPlugin<SensorNodeFactory>("/home/jakub/wsssorkspace/cpp/Qt/iot-embedded/build/plugins/system-telemetry-sensor/libsystem_telemetry_sensor.so");
 
     NodeContainer<SensorNode, SensorNodeFactory>* sensor_container =
             new NodeContainer<SensorNode, SensorNodeFactory>(&context);

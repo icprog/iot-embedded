@@ -26,9 +26,13 @@ void SocketEndpoint::start()
         socket_->connect();
     } catch (std::runtime_error e) {
         qDebug()<<TAG<<": start() - unable to open socket with given url: "<<url<<" and portnumber: "<<port_number<<". Reason: "<<e.what();
+        stop();
+        throw e;
     }
+    qDebug()<<TAG<<": start() - connected to remote host.";
 
-    stop();
+
+
 
 }
 

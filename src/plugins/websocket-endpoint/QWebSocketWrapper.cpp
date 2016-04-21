@@ -4,8 +4,8 @@
 QWebSocketWrapper::QWebSocketWrapper(QObject *parent) : Socket(parent)
 {
 
-    socket_ = new QWebSocket(QString(), QWebSocketProtocol::Version8);
-    QObject::connect(socket_, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(onMessageReceived(QByteArray)));
+    socket_ = new QWebSocket();
+//    QObject::connect(socket_, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(onMessageReceived(QByteArray)));
 //  connect(sn, &SensorNode::sensorDataAvaliable, cn, &ConnectivityNode::sendData, Qt::ConnectionType::QueuedConnection );
 }
 
@@ -21,13 +21,13 @@ void QWebSocketWrapper::connect()
     QEventLoop loop;
     QObject::connect(socket_, &QWebSocket::connected, &loop, &QEventLoop::quit);
     QObject::connect(socket_, SIGNAL(error(QAbstractSocket::SocketError)), &loop, SLOT(quit()));
-    socket_->open(url_);
+    socket_->open(QUrl(url_));
     loop.exec(); //blocks untill either theSignalToWaitFor or timeout was fired
-    if(!socket_->errorString().isEmpty()){
-        QString err = "Unable to connect to host: "+url_.toString()+", reason: "+socket_->errorString();
+    if(socket_->error() != -1){
+        QString err = "Unable to connect to host: "+url_.toString()+", reason: "+socket_->errorString() + " error code: " + QString::number(socket_->error());
         throw std::runtime_error(err.toStdString());
     }
-
+    socket_->sendTextMessage(QStringLiteral("Hello, fellas!"));
 
 }
 

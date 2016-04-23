@@ -46,7 +46,7 @@ void IoTBroker::processData(DataItem data)
     int sensor_id = sensor_id_mapping_[data.senderId()];
     DataItem response = messageFormattingStrategy_->formatMessage(data, sensor_id, name_);
 
-    qDebug()<<TAG<<": processData(): "<<response.payload()["data"].toString();
+//    qDebug()<<TAG<<": processData(): "<<response.payload()["data"].toString();
     emit dataProcessed(response);
 }
 

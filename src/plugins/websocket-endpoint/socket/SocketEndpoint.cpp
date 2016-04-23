@@ -31,9 +31,6 @@ void SocketEndpoint::start()
     }
     qDebug()<<TAG<<": start() - connected to remote host.";
 
-
-
-
 }
 
 void SocketEndpoint::stop()
@@ -54,7 +51,20 @@ void SocketEndpoint::sendData(DataItem data)
     }
 }
 
+void SocketEndpoint::onSocketError(QString reason)
+{
+    qDebug()<<TAG<<": onSocketError(): socket error occured:"<<reason;
+    try {
+        socket_->connect();
+    } catch (std::runtime_error e) {
+        qDebug()<<TAG<<": start() - unable to reopen socket. Reason: "<<e.what();
+        stop();
+        throw e;
+    }
+}
+
 void SocketEndpoint::setSocket(Socket *socket)
 {
     socket_ = socket;
+    connect(socket_, &Socket::disconnected, this, &SocketEndpoint::onSocketError);
 }

@@ -88,8 +88,9 @@ void ApplicationContextLoader::loadApplicationContext(const QString &config_path
         return ptr;
     };
 
+
     ///Encapsulates routine of making connection between nodes.
-    auto makeConnection = [](QObject* out, const QString &out_type, QObject* in, const QString &in_type)->void {
+    auto makeConnection = [this](QObject* out, const QString &out_type, QObject* in, const QString &in_type)->void {
         QObject *ptr;
         // Determine type of out node
         if(out_type.toLower()=="sensor") {
@@ -97,33 +98,50 @@ void ApplicationContextLoader::loadApplicationContext(const QString &config_path
             if(in_type.toLower() == "broker") {
                 BrokerNode* bn = dynamic_cast<BrokerNode*>(in);
                 connect(sn, &SensorNode::sensorDataAvaliable, bn, &BrokerNode::processData, Qt::ConnectionType::QueuedConnection );
-                bn->start();
+                connect(this, &ApplicationContextLoader::startNodes, bn, &BrokerNode::start, Qt::ConnectionType::QueuedConnection);
+
             } else if(in_type.toLower() == "connectivity") {
                 ConnectivityNode* cn = dynamic_cast<ConnectivityNode*>(in);
                 connect(sn, &SensorNode::sensorDataAvaliable, cn, &ConnectivityNode::sendData, Qt::ConnectionType::QueuedConnection );
-                cn->start();
-            } else qDebug()<<TAG<<": Cannot connect: "<<in_type<<" is not proper node type.";
-            sn->start();
+                connect(this, &ApplicationContextLoader::startNodes, cn, &ConnectivityNode::start, Qt::ConnectionType::QueuedConnection);
+
+            } else {
+                qDebug()<<TAG<<": Cannot connect: "<<in_type<<" is not proper node type.";
+                return;
+            }
+            connect(this, &ApplicationContextLoader::startNodes, sn, &SensorNode::start, Qt::ConnectionType::QueuedConnection);
+
         } else if(out_type.toLower() == "broker") {
             BrokerNode* bn = dynamic_cast<BrokerNode*>(out);
             if(in_type.toLower() == "broker") {
                 BrokerNode* bn2 = dynamic_cast<BrokerNode*>(in);
                 connect(bn, &BrokerNode::dataProcessed, bn2, &BrokerNode::processData, Qt::ConnectionType::QueuedConnection );
-                bn2->start();
+                connect(this, &ApplicationContextLoader::startNodes, bn2, &BrokerNode::start, Qt::ConnectionType::QueuedConnection);
+
             } else if(in_type.toLower() == "connectivity") {
                 ConnectivityNode* cn = dynamic_cast<ConnectivityNode*>(in);
                 connect(bn, &BrokerNode::dataProcessed, cn, &ConnectivityNode::sendData, Qt::ConnectionType::QueuedConnection );
-                cn->start();
-            } else qDebug()<<TAG<<": Cannot connect: "<<in_type<<" is not proper node type.";
-            bn->start();
+                connect(this, &ApplicationContextLoader::startNodes, cn, &ConnectivityNode::start, Qt::ConnectionType::QueuedConnection);
+
+            } else {
+                qDebug()<<TAG<<": Cannot connect: "<<in_type<<" is not proper node type.";
+                return;
+            }
+            connect(this, &ApplicationContextLoader::startNodes, bn, &BrokerNode::start, Qt::ConnectionType::QueuedConnection);
+
         } else if(out_type.toLower() == "connectivity") {
             ConnectivityNode* cn = dynamic_cast<ConnectivityNode*>(out);
             if(in_type.toLower() == "broker") {
                 BrokerNode* bn = dynamic_cast<BrokerNode*>(in);
                 connect(cn, &ConnectivityNode::dataReceived, bn, &BrokerNode::processData, Qt::ConnectionType::QueuedConnection );
-                bn->start();
-            } else qDebug()<<TAG<<": Cannot connect: "<<in_type<<" is not proper node type.";
-            cn->start();
+                connect(this, &ApplicationContextLoader::startNodes, bn, &BrokerNode::start, Qt::ConnectionType::QueuedConnection);
+
+            } else {
+                qDebug()<<TAG<<": Cannot connect: "<<in_type<<" is not proper node type.";
+                return;
+            }
+            connect(this, &ApplicationContextLoader::startNodes, cn, &ConnectivityNode::start, Qt::ConnectionType::QueuedConnection);
+
         } else qDebug()<<TAG<<": Cannot connect: "<<out_type<<" is not proper node type.";
     };
 
@@ -136,8 +154,6 @@ void ApplicationContextLoader::loadApplicationContext(const QString &config_path
         QString classname = node_settings_->value(NODE_CLASSNAME_KEY).toString();
         connections_by_name.insert(name, node_settings_->value(NODE_CONNECTIONS_KEY).toStringList());
         node_settings_->endGroup();
-
-//        node_container_->loadNodeFactory(lib_filename);
 
         ///Copy settings to global scope (they will be necessarry during node creation)
         copySettingsToGlobal(name);
@@ -186,6 +202,7 @@ void ApplicationContextLoader::loadApplicationContext(const QString &config_path
                 qDebug()<<TAG<<": "<<errmsg;
             }
             makeConnection(out, out_type, in, in_type);
+            emit startNodes();
             qDebug()<<TAG<<": connection made between "+name+" and "+connection;
         }
     }

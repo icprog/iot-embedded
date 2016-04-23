@@ -11,6 +11,13 @@
 #include <ConnectivityNode.h>
 #include <ConnectivityNodeFactory.h>
 
+
+/**
+ * @brief Template class for node container
+ * @param Node Node type
+ * @param Factory NodeFactory type.
+ * @note NodeFactory must be able to produce Node instances, otherwise errors will occur at compile time.
+ */
 template<typename Node, typename Factory>
 class NodeContainer : public QObject
 {

@@ -22,6 +22,8 @@ public slots:
     virtual void stop();
     virtual void sendData(DataItem data);
 
+private slots:
+    virtual void onSocketError(QString reason);
 private:
    static const QString TAG;
    QSettings settings_;

@@ -202,10 +202,12 @@ void ApplicationContextLoader::loadApplicationContext(const QString &config_path
                 qDebug()<<TAG<<": "<<errmsg;
             }
             makeConnection(out, out_type, in, in_type);
-            emit startNodes();
+
             qDebug()<<TAG<<": connection made between "+name+" and "+connection;
         }
+
     }
+    emit startNodes();
 }
 
 void ApplicationContextLoader::loadTestContext()

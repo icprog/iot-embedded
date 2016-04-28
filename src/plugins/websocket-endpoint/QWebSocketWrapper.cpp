@@ -38,7 +38,7 @@ void QWebSocketWrapper::connect()
 
 void QWebSocketWrapper::disconnect()
 {
-    socket_->close();
+//    socket_->close();
     delete socket_;
     socket_ = nullptr;
     emit disconnected("WebSocket connection terminated.");

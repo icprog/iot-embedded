@@ -54,13 +54,10 @@ void SocketEndpoint::sendData(DataItem data)
 void SocketEndpoint::onSocketError(QString reason)
 {
     qDebug()<<TAG<<": onSocketError(): socket error occured:"<<reason;
-    try {
-        socket_->connect();
-    } catch (std::runtime_error e) {
-        qDebug()<<TAG<<": start() - unable to reopen socket. Reason: "<<e.what();
-        stop();
-        throw e;
-    }
+
+//    stop();
+    QString e = "Socket Error: " + reason;
+    throw std::runtime_error(e.toStdString());
 }
 
 void SocketEndpoint::setSocket(Socket *socket)
